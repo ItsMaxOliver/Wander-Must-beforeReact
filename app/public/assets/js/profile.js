@@ -24,9 +24,8 @@ $(document).ready(function () {
     });
 });
 
-$.get("/loggedIn")
-
-    .then(function (dbUser) {
-        localStorage.getItem("user_id", dbUser.id);
-        window.location.href = "/profile/" + dbUser.id;
-    });
+// $.get("/loggedIn")
+//     .then(function (dbUser) {
+//         localStorage.getItem("user_id", dbUser.id);
+//         window.location.href = "/profile/" + dbUser.id;
+//     });

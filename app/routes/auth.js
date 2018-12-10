@@ -3,10 +3,7 @@ var express = require("express");
 // passport is necessary for auth and is thus passed in this function
 module.exports = function (app, passport) {
 
-    app.get("/", function (req, res) {
-        res.render("index");
-    });
-
+    // destroys a user's session when they log out and redirects them to home page
     app.get("/logout", function (req, res) {
         req.session.destroy(function (err) {
             res.redirect("/");
@@ -17,24 +14,31 @@ module.exports = function (app, passport) {
         res.render("profile");
     });
 
+    // redirects after successful signup
     app.get("/authSuccess", function (req, res) {
         res.redirect("/profile/" + req.user.id);
     });
 
-    app.post(
-        "/api/users/",
-        passport.authenticate("local-signup", { failureRedirect: "/", successRedirect: "/authSuccess" }),
-        function (req, res) {
-        }
+    // posts a new user's information to our database when they sign up through our site
+    app.post("/api/users/",
+        passport.authenticate("local-signup", 
+        { failureRedirect: "/", 
+        successRedirect: "/authSuccess" }
+        )
     );
 
     app.post("/api/signin", function (req, res, next) {
-        passport.authenticate("local-signin", function (err, user, info) {
+        passport.authenticate("local-signin", function (err, user) {
             if (err) {
                 return next(err);
             }
-            req.login(user, function (err) {
-                if (err) { return res.redirect("/"); }
+            if (!user) {
+                return res.redirect("/")
+            }
+            req.logIn(user, function (err) {
+                if (err) { 
+                    return next(err); 
+                }
                 return res.redirect("/profile/" + user.id);
             });
         })(req, res, next);
