@@ -111,7 +111,6 @@ Here are some of the features to be included in any future development for this 
 ## Node Packages Used
 
 - bcrypt
-- body-parser
 - chai
 - ddslick
 - dotenv

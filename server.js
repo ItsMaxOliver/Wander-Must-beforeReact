@@ -1,28 +1,25 @@
 // variable declarations for required packages
 const express = require("express");
-const bodyParser = require("body-parser");
 const path = require("path");
-var passport = require("passport");
-var session = require("express-session");
-
+const passport = require("passport");
+const session = require("express-session");
 
 // sets up the Express App
-// =============================================================
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // variable for sequelize models
-let db = require("./app/models");
+const db = require("./app/models");
 
 // sets up the Express app to serve static files
 app.use(express.static(path.join(__dirname, "/app/public")));
 
 // sets up the Express app to handle data parsing
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 //Passport session
-app.use(session({ secret: "Xander-must", resave: true, saveUninitialized: true })); // session secret
+app.use(session({ secret: process.env.SESSIONSECRET, resave: true, saveUninitialized: true })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
@@ -58,7 +55,7 @@ require("./app/routes/locale-api-routes.js")(app);
 require("./app/routes/html-routes.js")(app, passport);
 
 //routes for authorization
-var authRoute = require("./app/routes/auth.js")(app, passport);
+const authRoute = require("./app/routes/auth.js")(app, passport);
 
 // loads passport strategies for authentication
 require("./app/config/passport/passport.js")(passport, db.User);

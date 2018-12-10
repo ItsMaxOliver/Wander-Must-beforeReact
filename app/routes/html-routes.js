@@ -9,6 +9,7 @@ module.exports = function (app, passport) {
         res.render("index");
     });
 
+    // route to display signup through handlebars
     app.get("/signup", function (req, res) {
         res.render("signup", { layout: 'signup_layout.handlebars' });
     });
@@ -18,6 +19,17 @@ module.exports = function (app, passport) {
         res.render("/");
     });
 
+    // suitcase path must have a suitcase id -- otherwise, redirect to index
+    app.get("/suitcase/", (req, res) => {
+        res.redirect("/");
+    });
+
+    // profile path must have a suitcase id -- otherwise, redirect to index
+    app.get("/profile/", (req, res) => {
+        res.redirect("/");
+    });
+
+    // route to display suitcase start if the user is logged in
     app.get("/suitcase-start", isLoggedIn, (req, res) => {
         if (isLoggedIn) {
             db.Item.findAll({})
@@ -29,16 +41,6 @@ module.exports = function (app, passport) {
         } else {
             res.redirect("/");
         }
-    });
-
-    // suitcase path must have a suitcase id -- otherwise, redirect to index
-    app.get("/suitcase/", (req, res) => {
-        res.redirect("/");
-    });
-
-    // profile path must have a suitcase id -- otherwise, redirect to index
-    app.get("/profile/", (req, res) => {
-        res.redirect("/");
     });
 
     // route to display all the suitcases that have the same locale city

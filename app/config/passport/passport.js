@@ -1,5 +1,6 @@
 // requiring bcrypyt, which is used to hash passwords
 const bCrypt = require('bcrypt');
+// const keys = require('./keys');
 
 // instantiating the passport functionality and passing the function 
 // a user to process
@@ -8,6 +9,10 @@ module.exports = (passport, user) => {
     const LocalStrategy = require('passport-local').Strategy;
     const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
     const TwitterStrategy = require('passport-twitter').Strategy;
+
+    const generateHash = (password) => {
+        return bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
+    };
 
     // passport needs to save a user ID which it uses 
     // to retrieve user details when needed
@@ -34,9 +39,7 @@ module.exports = (passport, user) => {
         },
         (req, email, password, done) => {
             // function that generates a hash for the password before it goes into the db
-            const generateHash = (password) => {
-                bCrypt.hashSync(password, bCrypt.genSaltSync(8), null);
-            };
+            generateHash(password);
             // performs a search for the user
             User.findOne({
                 where: {
@@ -74,37 +77,32 @@ module.exports = (passport, user) => {
     passport.use('local-signin', new LocalStrategy({
             usernameField: 'email',
             passwordField: 'password',
-            passReqToCallback: true
+            passReqToCallback: false
         }, 
-        (req, email, password, done) => {
+        (email, password, done) => {
             // production env password validator
-            const isValidPassword = (userpass, password) => {
-                bCrypt.compareSync(password, userpass);
-            }
             User.findOne({
                 where: {
                     email: email
                 }
             }).then( user => {
-                if (!user.password === password) {
-                    return done(null, false, {
-                        message: 'Incorrect password.'
-                    });
-                }
-                if (!user) {
-                    return done(null, false, {
-                        message: 'email does not exist'
-                    });
-                }
-                const userinfo = user.get();
-                return done(null, userinfo);
+                bCrypt.compare(password, user.password).then(res => {
+                    if (!user) {
+                        return done(null, false, {
+                            message: 'Incorrect email'
+                        });
+                    }
+                    else if(res == true) {
+                        const userinfo = user.get();
+                        return done(null, userinfo);
+                    }
+                    else if(res == false) {
+                        return done(null, false, {
+                            message: 'Incorrect password'
+                        });
+                    }
+                })
             })
-                .catch( err => {
-                    done(null, false, {
-                        message: "Whoops, something went wrong with your sign-in"
-                    });
-                });
-        }
-
-    ));
+        })
+    );
 }

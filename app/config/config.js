@@ -4,21 +4,19 @@ module.exports = {
   development: {
     username: "root",
     password: process.env.MYSQLPASSWORD,
-    database: "database_development",
+    database: "wmhandlebars_development",
     host: "127.0.0.1",
     dialect: "mysql"
   },
   test: {
     username: "root",
-    password: null,
-    database: "testing_db",
+    password: process.env.MYSQLPASSWORD,
+    database: "testing_WMH_db",
     host: "127.0.0.1",
     dialect: "mysql"
   },
   production: {
     use_env_variable: "JAWSDB_URL",
     dialect: "mysql"
-  },
-
-
+  }
 }; 
